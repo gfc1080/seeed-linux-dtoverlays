@@ -1,10 +1,6 @@
-
 /*
- * Device tree overlay for spi5 
- * zcat  /proc/config.gz | grep SPIDEV
- * sudo modprobe -i spidev
+ * Device tree overlay for spi5 with custom NSS (PF6)
  */
-
 
 #include "dt-bindings/interrupt-controller/irq.h"
 #include "dt-bindings/gpio/gpio.h"
@@ -15,15 +11,15 @@
 
 / {
         compatible = "seeed,npi-stm32mp1", "st,stm32mp157";
+        
         fragment@0 {
                 target = <&pinctrl>;
                 __overlay__ {
                         spi5_pins_s: spi5-1 {
                                 pins1 {
                                         pinmux = <STM32_PINMUX('H', 6, AF5)>, /* SPI5_SCK */
-                                                <STM32_PINMUX('F', 9, AF5)>; /* SPI5_MOSI */
-                                                /* <STM32_PINMUX('F', 6, GPIO)>, SPI5_NSS0 */
-                                                /* <STM32_PINMUX('F', 3, GPIO)>; SPI5_NSS1 */
+                                                 <STM32_PINMUX('F', 9, AF5)>; /* SPI5_MOSI */
+                                                 //<STM32_PINMUX('F', 6, AF5)>; /* SPI5_NSS (SSEL) */
                                         bias-disable;
                                         drive-push-pull;
                                         slew-rate = <1>;
@@ -38,14 +34,14 @@
                         spi5_sleep_pins_s: spi5-sleep-1 {
                                 pins {
                                         pinmux = <STM32_PINMUX('H', 6, ANALOG)>, /* SPI5_SCK */
-                                                <STM32_PINMUX('H', 7, ANALOG)>, /* SPI5_MISO */
-                                                <STM32_PINMUX('F', 9, ANALOG)>; /* SPI5_MOSI */
-                                                /* <STM32_PINMUX('F', 6, ANALOG)>, SPI5_NSS0 */
-                                                /* <STM32_PINMUX('F', 3, ANALOG)>; SPI5_NSS1 */
+                                                 <STM32_PINMUX('H', 7, ANALOG)>, /* SPI5_MISO */
+                                                 <STM32_PINMUX('F', 9, ANALOG)>; /* SPI5_MOSI */
+                                                 //<STM32_PINMUX('F', 6, ANALOG)>; /* SPI5_NSS */
                                 };
                         };
                 };
         };
+
         fragment@2 {
                 target = <&spi5>;
                 __overlay__ {
@@ -54,16 +50,16 @@
                         pinctrl-names = "default", "sleep";
                         pinctrl-0 = <&spi5_pins_s>;
                         pinctrl-1 = <&spi5_sleep_pins_s>;
-                        cs-gpios = <&gpiof 3 GPIO_ACTIVE_LOW>;
+                        cs-gpios = <&gpiof 6 GPIO_ACTIVE_LOW>; /* NSS now on PF6 */
                         status = "okay";
-                        /* needed to avoid dtc warning */
-                        spi0channel@0{
+
+                        spi0channel@0 {
                                 #address-cells = <1>;
                                 #size-cells = <0>;
-                                compatible = "rohm,dh2228fv","spidev";
+                                compatible = "spidev", "rohm,dh2228fv";
                                 reg = <0>;
                                 spi-max-frequency = <20000000>;
-                        };                      
+                        };
                 };
         };
 };
