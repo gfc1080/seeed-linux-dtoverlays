@@ -60,3 +60,12 @@ more:
 ------------
 Mainline does not have a kernel module, or there is controversy about a kernel module that does work well. We will also collect them together and put them here.
 The kernel modules will have the corresponding documentation and detailed instructions。
+
+## BUILD FOR STM32MP1(ODYSSEY) 
+-----------
+```sh
+ make all_stm32mp1 CUSTOM_MOD_FILTER_OUT="jtsn-wm8960" && sudo make install_stm32mp1 CUSTOM_MOD_FILTER_OUT="jtsn-wm8960"
+ ```
+```sh
+ make clean_stm32mp1
+```
